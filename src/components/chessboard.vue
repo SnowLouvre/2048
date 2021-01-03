@@ -1,4 +1,4 @@
-/* 
+/*
   棋盘
  */
 <template>
@@ -9,14 +9,14 @@
 
 <script>
 export default {
-  name: "chessboard",
+  name: 'chessboard',
   props: {
   },
   data () {
     return {
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
