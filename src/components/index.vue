@@ -1,6 +1,6 @@
 <template>
   <div class="index">
-    <button @click="moveChess()">down</button>
+    <button @click="move()">down</button>
     <chessboard></chessboard>
     <div class="container">
       <span class="list" v-for="(item, index) in chessList" :key="index" :style="{backgroundColor: item.color, left: (item.x * 120 + 10) + 'px', top: (item.y * 120 + 10) + 'px'}">{{item.num}}</span>
@@ -40,10 +40,9 @@ export default {
   methods: {
     /* 初始化棋盘 */
     initChessboard () {
+      this.chessList = []
       this.initChessboardList()
-      /* 开局随机生成三个棋子 */
-      this.generateChess()
-      this.generateChess()
+      /* 开局随机生成一个棋子 */
       this.generateChess()
     },
     /* 初始化棋盘数组 */
@@ -55,13 +54,13 @@ export default {
     /* 生成棋子 */
     generateChess () {
       const num = this.getNumber()
+      const coordinate = this.getCoordinate()
       const chess = {
-        x: this.getCoordinate().x,
-        y: this.getCoordinate().y,
+        x: coordinate.x,
+        y: coordinate.y,
         num: num,
         color: this.color[num]
       }
-      console.log(chess, 'chess')
       this.chessList.push(chess)
     },
     /* 获取随机数字 */
@@ -76,16 +75,17 @@ export default {
       return { x: parseInt(num / 4), y: num % 4 }
     },
     /* 移动棋子 */
-    moveChess (position = 'down') {
+    move (position = 'down') {
       if (position === 'down') {
         for (let i = 0; i <= 3; i++) {
           const chessList = this.chessList.filter(item => item.x === i)
           if (chessList.length) {
             if (chessList.length === 1) {
-              chessList[0].y = 3
+              this.moveChess({ chess: chessList[0], position })
             } else {
-              const sortChessList = chessList.sort(this.sortByOneAxis('y'))
-              console.log(sortChessList, 'sortChessList')
+              const sortChessList = chessList.sort(this.sortByOneAxis('y')).reverse()
+              // sortChessList.forEach(item => {
+              // })
               sortChessList[sortChessList.length - 1].y = 3
               for (let j = sortChessList.length - 1; j > 0;) {
                 if (sortChessList[j - 1]?.num === sortChessList[j]?.num) {
@@ -104,19 +104,25 @@ export default {
         this.generateChess()
       }
     },
+    /* 移动棋子 */
+    moveChess ({ chess, position = 'down' }) {
+      const nextChess = this.getNextChess(chess)
+      console.log(nextChess, 'nextChess')
+      chess.y = 3
+      this.chessboardList[chess.x * 4 + chess.y] = 0
+    },
+    /* 获取相邻当前行/列棋子 */
+    getNextChess (chess) {
+      return this.chessList.find(item => item.x === chess.x && item.y !== chess.y)
+    },
+    findFarthestPosition () {},
     /* 按某一坐标轴排序 */
     sortByOneAxis (axis) {
-      return (first, second) => {
-        return first[axis] - second[axis]
-      }
-    },
-    initData () {
-      this.chessList = []
-      this.initChessboard()
+      return (first, second) => first[axis] - second[axis] ? -1 : 1
     }
   },
   created () {
-    this.initData()
+    this.initChessboard()
   }
 }
 </script>
